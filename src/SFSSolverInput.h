@@ -50,24 +50,24 @@ struct SFSSolverInput {
         probParams.set("edgeMaskC", edgeMaskC);
     }
 
-    void load(const std::string& filenamePrefix, bool onGPU) {
+    void load(const cv::Mat frame, bool onGPU) {
         std::cout << "here" << std::endl;
-        targetIntensity = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetIntensity.imagedump", onGPU));
-        maskEdgeMap     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_maskEdgeMap.imagedump",     onGPU));
-        initialUnknown  = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_initialUnknown.imagedump", onGPU));
+        targetIntensity = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(frame, onGPU));
+        //maskEdgeMap     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_maskEdgeMap.imagedump",     onGPU));
+        //initialUnknown  = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_initialUnknown.imagedump", onGPU));
 
-        std::cout << "here1" << std::endl;
 
-        targetDepth     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.imagedump",     onGPU));
-
+        //targetDepth     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.imagedump",     onGPU));
 
 
 
-        auto test = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.bin", false));
+
+        //auto test = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.imagedump", false));
         float* ptr = (float*)targetDepth.get();
         int numActiveUnkowns = 0;
-        /*targetDepth->savePNG("depth",255);
-        targetIntensity->savePNG("intensity",255);
+        //targetDepth->savePNG("depth",255);
+
+        /*targetIntensity->savePNG("intensity",255);
         initialUnknown->savePNG("unknown",255);
         maskEdgeMap->savePNG("edge", 1);*/
         /*std::cout << test->type() << std::endl;
@@ -75,14 +75,18 @@ struct SFSSolverInput {
         cv::imshow("depth map", dst);
         cv::waitKey(0);*/
 
-        for (int i = 0; i < test->width()*test->height(); ++i) {
+        for (int i = 0; i < targetIntensity->width()*targetIntensity->height(); ++i) {
             if (ptr[i] > 0.0f) {
                 ++numActiveUnkowns;
+
             }
         }
         printf("Num Active Unknowns: %d\n", numActiveUnkowns);
+        std::cout << "here1" << std::endl;
 
-        parameters.load(filenamePrefix + ".SFSSolverParameters");
+        //parameters.load(filenamePrefix + ".SFSSolverParameters");
+
+
     }
 
 };

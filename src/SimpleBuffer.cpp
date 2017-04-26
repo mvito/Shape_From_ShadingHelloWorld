@@ -9,12 +9,17 @@
 #include <limits>
 //using std::memcpy;
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <iostream>
 
 
-SimpleBuffer::SimpleBuffer(std::string filename, bool onGPU, bool clampInfinity) :
+
+//SimpleBuffer::SimpleBuffer(std::string filename, bool onGPU, bool clampInfinity) :
+SimpleBuffer::SimpleBuffer(cv::Mat frame, bool onGPU, bool clampInfinity) :
     m_onGPU(onGPU)
 {
-    FILE* fileHandle = fopen(filename.c_str(), "rb"); //b for binary
+    /*FILE* fileHandle = fopen(filename.c_str(), "rb"); //b for binary
     fread(&m_width,         sizeof(int), 1, fileHandle);
     fread(&m_height,        sizeof(int), 1, fileHandle);
     fread(&m_channelCount,  sizeof(int), 1, fileHandle);
@@ -27,8 +32,16 @@ SimpleBuffer::SimpleBuffer(std::string filename, bool onGPU, bool clampInfinity)
     void* ptr = malloc(size);
     fread(ptr, elementSize*m_channelCount, (m_width*m_height), fileHandle);
 
-    fclose(fileHandle);
-    
+    fclose(fileHandle);*/
+    m_width = frame.cols;
+    m_height = frame.rows;
+    m_channelCount = frame.channels();
+    m_dataType = DataType(frame.type());
+    size_t elementSize = datatypeToSize(m_dataType);
+    size_t size = elementSize*m_channelCount*(m_width*m_height);
+    void* ptr = malloc(size);
+    ptr = frame.data;
+
     if (m_dataType == 0 && clampInfinity) {
       float* fPtr = (float*)ptr;
       for (int i = 0; i < m_width*m_height; ++i) {
@@ -42,7 +55,7 @@ SimpleBuffer::SimpleBuffer(std::string filename, bool onGPU, bool clampInfinity)
       }
     }
 
-    
+
 
     if (m_onGPU) {
         cudaMalloc(&m_data, size);
@@ -65,7 +78,7 @@ SimpleBuffer::SimpleBuffer(const SimpleBuffer& other, bool onGPU) :
         cudaMalloc(&m_data, dataSize);
         if (other.m_onGPU) {
             cudaMemcpy(m_data, other.m_data, dataSize, cudaMemcpyDeviceToDevice);
-        } else { 
+        } else {
             cudaMemcpy(m_data, other.m_data, dataSize, cudaMemcpyHostToDevice);
         }
     } else {
@@ -194,7 +207,7 @@ void SimpleBuffer::savePLYMesh(std::string filename) const {
     }
 
     std::cout << "Saving " << filename << " " << m_width << "x" << m_height << "x" << m_channelCount << std::endl;
-    
+
     vector<vec3f> vertices;
     vector<UINT> indices;
     ColorImageR8G8B8A8 image(m_width, m_height);
@@ -210,8 +223,8 @@ void SimpleBuffer::savePLYMesh(std::string filename) const {
         }
         // Always put in vertices (even if invalid)... this is due to laziness of not wanting to rewrite code
         vertices.push_back(vec3f((float)p.x, (float)p.y, value * 1000.0f));
-        
-        
+
+
         if (valid && p.x < image.getDimX() - 1 && p.y < image.getDimY() - 1)
         {
             int i01 = (p.y + 0) * m_width + p.x + 1;
@@ -224,14 +237,14 @@ void SimpleBuffer::savePLYMesh(std::string filename) const {
                 indices.push_back(i10);
                 indices.push_back(i11);
             }
-            
+
             if (isValidPixel(ptr, i01) && isValidPixel(ptr, i11)) {
                 indices.push_back(i00);
                 indices.push_back(i11);
                 indices.push_back(i01);
             }
 
-            
+
         }
     }
     TriMeshf mesh(vertices, indices);
