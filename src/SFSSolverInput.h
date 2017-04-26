@@ -7,10 +7,7 @@
 #include <memory>
 #include <string>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
-using namespace cv;
+
 
 static  std::shared_ptr<OptImage> createWrapperOptImage(std::shared_ptr<SimpleBuffer> simpleBuffer) {
     std::vector<unsigned int> dims = { (unsigned int)simpleBuffer->width(), (unsigned int)simpleBuffer->height() };
@@ -63,11 +60,11 @@ struct SFSSolverInput {
         auto test = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.imagedump", false));
         float* ptr = (float*)targetDepth.get();
         int numActiveUnkowns = 0;
-        targetDepth->savePNG("depth",255);
+        /*targetDepth->savePNG("depth",255);
         targetIntensity->savePNG("intensity",255);
         initialUnknown->savePNG("unknown",255);
-        maskEdgeMap->savePNG("edge", 1);
-    /*    std::cout << test->type() << std::endl;
+        maskEdgeMap->savePNG("edge", 1);*/
+        /*std::cout << test->type() << std::endl;
         cv::Mat dst(test->width(), test->height(), CV_64FC1,ptr);
         cv::imshow("depth map", dst);
         cv::waitKey(0);*/
