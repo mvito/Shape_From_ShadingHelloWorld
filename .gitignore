@@ -3,3 +3,4 @@
 *.vcxproj.filters
 *.sln
 build/
+*.exe
