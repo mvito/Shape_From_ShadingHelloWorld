@@ -4,3 +4,6 @@
 *.sln
 build/
 *.exe
+*.ply
+*.imagedump
+*.png
