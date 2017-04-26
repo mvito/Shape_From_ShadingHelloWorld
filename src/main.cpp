@@ -146,7 +146,8 @@ int main(int argc, const char * argv[])
     cv::Mat depthMat(depth->height, depth->width, CV_32FC1);
     depthMat_frame.copyTo(depthMat);
     cv::Mat rgbMatrix(registered.height, registered.width, CV_8UC4, registered.data);
-    cv::cvtColor(rgbMatrix, rgbMatrix, CV_BGRA2BGR); // transform to 3-channels
+    cv::cvtColor(rgbMatrix, rgbMatrix, CV_BGRA2GRAY); // transform to 3-channels
+    cv::Mat mask(depth->height, depth->width, CV_32FC1, cv::Scalar(0));
 
     // >> Kinect input >> //
 
@@ -167,9 +168,10 @@ int main(int argc, const char * argv[])
     }
 
     SFSSolverInput solverInputCPU, solverInputGPU;
-    solverInputGPU.load(rgbMatrix, true);
+    solverInputGPU.load(rgbMatrix,depthMat,mask, true);
+    std::cout << "here" << std::endl;
 
-    solverInputGPU.targetDepth->savePLYMesh("sfsInitDepth.ply");
+    //solverInputGPU.targetDepth->savePLYMesh("sfsInitDepth.ply");
     //solverInputCPU.load(inputFilenamePrefix, false);
 
     CombinedSolverParameters params;
@@ -191,11 +193,19 @@ int main(int argc, const char * argv[])
     std::shared_ptr<SimpleBuffer> result = solver.result();
     printf("Solved\n");
     printf("About to save\n");
-    result->save("sfsOutput.imagedump");
-    result->savePNG("sfsOutput", 150.0f);
-    result->savePLYMesh("sfsOutput.ply");
+    //result->save("sfsOutput.imagedump");
+    //result->savePNG("sfsOutput", 150.0f);
+    //result->savePLYMesh("sfsOutput.ply");
     printf("Save\n");
+    listener.release(frames);
+    /**
+     * libfreenect2::this_thread::sleep_for(libfreenect2::chrono::milliseconds(100));
+     */
+  }
+
+  dev->stop();
+  dev->close();
 
 	return 0;
-}
+
 }

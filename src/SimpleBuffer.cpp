@@ -38,29 +38,44 @@ SimpleBuffer::SimpleBuffer(cv::Mat frame, bool onGPU, bool clampInfinity) :
     m_channelCount = frame.channels();
     m_dataType = DataType(frame.type());
     size_t elementSize = datatypeToSize(m_dataType);
+
     size_t size = elementSize*m_channelCount*(m_width*m_height);
-    void* ptr = malloc(size);
+    //void *ptr = new void[size];
+    std::cout << "Width: " << m_width << "\n" << "HEight: " << m_height << std::endl;
+    /*std::cout << "m_channelCount: " << m_channelCount << "\n" << "m_dataType: " << m_dataType << std::endl;
+    std::cout << "elementSize: " << elementSize << std::endl;
+
+    std::cout << size << std::endl;*/
+
+    uchar* ptr = new uchar[m_width*m_height];
     ptr = frame.data;
 
-    if (m_dataType == 0 && clampInfinity) {
+
+    /*if (m_dataType == 0 && clampInfinity){
       float* fPtr = (float*)ptr;
+
       for (int i = 0; i < m_width*m_height; ++i) {
-	if (isinf(fPtr[i])) {
-	  if (fPtr[i] > 0) {
-	    fPtr[i] = std::numeric_limits<float>::max();
-	  } else {
-	    fPtr[i] = -10000.0f;//std::numeric_limits<float>::lowest();
-	  }
-	}
+
+	      if (isinf(fPtr[i])) {
+
+	          if (fPtr[i] > 0) {
+	             fPtr[i] = std::numeric_limits<float>::max();
+
+	          } else {
+	             fPtr[i] = -10000.0f;//std::numeric_limits<float>::lowest();
+	          }
+	     }
       }
-    }
+
+  }*/
 
 
 
     if (m_onGPU) {
+        std::cout << "hola" ;
         cudaMalloc(&m_data, size);
         cudaMemcpy(m_data, ptr, size, cudaMemcpyHostToDevice);
-        free(ptr);
+        //free(ptr);
     } else {
         m_data = ptr;
     }

@@ -50,14 +50,19 @@ struct SFSSolverInput {
         probParams.set("edgeMaskC", edgeMaskC);
     }
 
-    void load(const cv::Mat frame, bool onGPU) {
-        std::cout << "here" << std::endl;
+    void load(const cv::Mat frame, const cv::Mat depthMap, const cv::Mat mask, bool onGPU) {
         targetIntensity = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(frame, onGPU));
-        //maskEdgeMap     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_maskEdgeMap.imagedump",     onGPU));
-        //initialUnknown  = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_initialUnknown.imagedump", onGPU));
+        std::cout << "here" << std::endl;
 
+        maskEdgeMap     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(mask,     onGPU));
+        std::cout << "here1" << std::endl;
 
-        //targetDepth     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(filenamePrefix + "_targetDepth.imagedump",     onGPU));
+        initialUnknown  = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(depthMap, onGPU));
+        std::cout << "here2" << std::endl;
+
+        targetDepth     = std::shared_ptr<SimpleBuffer>(new SimpleBuffer(depthMap,     onGPU));
+        std::cout << "here3" << std::endl;
+
 
 
 
@@ -82,7 +87,6 @@ struct SFSSolverInput {
             }
         }
         printf("Num Active Unknowns: %d\n", numActiveUnkowns);
-        std::cout << "here1" << std::endl;
 
         //parameters.load(filenamePrefix + ".SFSSolverParameters");
 
