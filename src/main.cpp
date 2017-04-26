@@ -28,21 +28,27 @@ int main(int argc, const char * argv[])
 
     imshow("depthMap", depthMap);
     imshow("intensityMap", intensityMap);
-    cv::waitKey(0);
+    cv::waitKey(30);
+    char *h_depth = new char[depthMap.rows * depthMap.cols];
+    char *h_intensity = new char[depthMap.rows * depthMap.cols];
+    char *h_mask = new char[depthMap.rows * depthMap.cols];
+    h_depth = (char*)depthMap.data;
+    h_intensity = (char*)intensityMap.data;
+    h_mask = (char*)maskEdgeMap.data;
 
-    ofstream myFile ("../data/shape_from_shading/marta_targetDepth.bin", ios::out | ios::binary);
-    myFile.write (depthMap, depthMap.size);
-    ofstream myFile2("../data/shape_from_shading/marta_initialUnknown.bin", ios::out | ios::binary);
-    myFile2.write (initialUnknown, initialUnknown.size);
-    ofstream myFile3("../data/shape_from_shading/marta_maskEdgeMap.bin", ios::out | ios::binary);
-    myFile3.write (maskEdgeMap, maskEdgeMap.size);
-    ofstream myFile4("../data/shape_from_shading/marta_targetIntensity.bin", ios::out | ios::binary);
-    myFile4.write (intensityMap, intensityMap.size);
+    ofstream myFile ("../data/shape_from_shading/marta_targetDepth.imagedump", ios::out | ios::binary);
+    myFile.write (h_depth, depthMap.rows * depthMap.cols);
+    ofstream myFile2("../data/shape_from_shading/marta_initialUnknown.imagedump", ios::out | ios::binary);
+    myFile2.write (h_depth, depthMap.rows * depthMap.cols);
+    ofstream myFile3("../data/shape_from_shading/marta_maskEdgeMap.imagedump", ios::out | ios::binary);
+    myFile3.write (h_mask, depthMap.rows * depthMap.cols);
+    ofstream myFile4("../data/shape_from_shading/marta_targetIntensity.imagedump", ios::out | ios::binary);
+    myFile4.write (h_intensity, depthMap.rows * depthMap.cols);
     myFile.close();
     myFile2.close();
     myFile3.close();
     myFile4.close();
-    
+
     std::string inputFilenamePrefix = "../data/shape_from_shading/marta";
     if (argc >= 2) {
         inputFilenamePrefix = std::string(argv[1]);
